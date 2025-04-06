@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pro Text Analyzer</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #8b5cf6;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --bg-light: #f8fafc;
+      --bg-dark: #0f172a;
+      --card-light: #ffffff;
+      --card-dark: #1e293b;
+      --border-light: #e2e8f0;
+      --border-dark: #334155;
+      --accent: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      background: var(--card-light);
+      width: 100%;
+      max-width: 800px;
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--border-light);
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .header {
+      padding: 2rem 2.5rem;
+      border-bottom: 1px solid var(--border-light);
+      background: rgba(255, 255, 255, 0.8);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      letter-spacing: -0.025em;
+    }
+
+    h1 svg {
+      width: 2.5rem;
+      height: 2.5rem;
+      color: var(--primary);
+    }
+
+    .subtitle {
+      color: var(--text-light);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .content {
+      padding: 2rem 2.5rem;
+    }
+
+    .text-area-container {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 250px;
+      padding: 1.5rem;
+      border: 2px solid var(--border-light);
+      border-radius: 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      resize: vertical;
+      background: var(--card-light);
+      color: var(--text);
+      line-height: 1.75;
+      transition: all 0.2s ease;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    }
+
+    .text-area-footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: var(--text-light);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--border-light);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .file-upload {
+      position: relative;
+      display: inline-block;
+    }
+
+    .file-upload input {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-light);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid var(--border-light);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      justify-content: center;
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    /* Dark Mode Styles */
+    body.dark-mode {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      color: #f8fafc;
+    }
+
+    .dark-mode .container {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .dark-mode .header {
+      background: rgba(30, 41, 59, 0.8);
+      border-bottom-color: var(--border-dark);
+    }
+
+    .dark-mode textarea {
+      background: #1e293b;
+      color: #f8fafc;
+      border-color: var(--border-dark);
+    }
+
+    .dark-mode .btn-outline {
+      border-color: var(--border-dark);
+      color: #f8fafc;
+    }
+
+    .dark-mode .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .dark-mode .stat-card {
+      background: #0f172a;
+      border-color: var(--border-dark);
+    }
+
+    .dark-mode .subtitle,
+    .dark-mode .text-area-footer {
+      color: #94a3b8;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .header, .content {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      textarea {
+        min-height: 200px;
+        padding: 1rem;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        border-radius: 1rem;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .stat-card {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Pro Text Analyzer
+      </h1>
+      <p class="subtitle">Comprehensive text analysis with real-time insights</p>
+    </div>
+
+    <div class="content">
+      <div class="text-area-container">
+        <textarea id="textInput" placeholder="Type or paste your text here, then click 'Analyze Text'..."></textarea>
+        <div class="text-area-footer">
+          <span id="cursorPosition">Line 1, Column 1</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="countWords()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+          </svg>
+          Analyze Text
+        </button>
+        
+        <div class="file-upload">
+          <button class="btn btn-outline">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+              <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+            </svg>
+            Upload File
+            <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.doc,.odt" />
+          </button>
+        </div>
+
+        <div class="toggle-container">
+          <span>Dark Mode</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleMode" onchange="toggleDarkMode()">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="wordCount">0</div>
+          <div class="stat-label">Words</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="characterCount">0</div>
+          <div class="stat-label">Characters</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="sentenceCount">0</div>
+          <div class="stat-label">Sentences</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="readingTime">0</div>
+          <div class="stat-label">Minutes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const textInput = document.getElementById('textInput');
+      
+      // Event listeners
+      textInput.addEventListener('keyup', updateCursorPosition);
+      textInput.addEventListener('click', updateCursorPosition);
+      
+      // Dark mode persistence
+      if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('toggleMode').checked = true;
+      }
+
+      // Initialize counters
+      resetCounters();
+    });
+
+    function countWords() {
+      const text = document.getElementById('textInput').value.trim();
+      
+      // Word count (improved regex)
+      const words = text.match(/\b[\w']+\b/g) || [];
+      document.getElementById('wordCount').textContent = words.length;
+      
+      // Character count
+      document.getElementById('characterCount').textContent = text.length;
+      
+      // Sentence count (enhanced detection)
+      const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+      document.getElementById('sentenceCount').textContent = sentences.length;
+      
+      // Reading time calculation
+      const readingTime = Math.ceil(words.length / 200) || 0;
+      document.getElementById('readingTime').textContent = readingTime;
+    }
+
+    function resetCounters() {
+      document.getElementById('wordCount').textContent = '0';
+      document.getElementById('characterCount').textContent = '0';
+      document.getElementById('sentenceCount').textContent = '0';
+      document.getElementById('readingTime').textContent = '0';
+    }
+
+    function updateCursorPosition() {
+      const textarea = document.getElementById('textInput');
+      const cursorPos = textarea.selectionStart;
+      const text = textarea.value.substring(0, cursorPos);
+      const lines = text.split('\n');
+      const lineNum = lines.length;
+      const colNum = lines[lines.length - 1].length + 1;
+      document.getElementById('cursorPosition').textContent = `Line ${lineNum}, Column ${colNum}`;
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', 
+        document.body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
+    }
+
+    document.getElementById('fileInput').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const textInput = document.getElementById('textInput');
+      textInput.value = "Processing file...";
+      textInput.disabled = true;
+      resetCounters();
+
+      try {
+        if (file.type.includes('text/') || file.name.endsWith('.txt')) {
+          const text = await file.text();
+          textInput.value = text;
+        } else if (file.type.includes('pdf')) {
+          const buffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+          let text = '';
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            text += content.items.map(item => item.str).join(' ');
+          }
+          textInput.value = text;
+        } else if (file.name.match(/\.docx?$/i)) {
+          const buffer = await file.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+          textInput.value = result.value;
+        } else {
+          textInput.value = "Unsupported file type. Please upload text-based files.";
+        }
+      } catch (error) {
+        textInput.value = `Error: ${error.message}`;
+      } finally {
+        textInput.disabled = false;
+      }
+    });
+
+    // Keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        countWords();
+      }
+    });
+  </script>
+</body>
+</html>
